@@ -1,7 +1,7 @@
 import spaces
 import gradio as gr
 import torch
-from diffusers import ControlNetModel, StableDiffusionXLControlNetImg2ImgPipeline, ControlNetModel, AutoencoderKL
+from diffusers import ControlNetModel, StableDiffusionXLControlNetImg2ImgPipeline, AutoencoderKL
 from PIL import Image
 import os
 import time
@@ -95,14 +95,14 @@ class Img2Img:
         with gr.Blocks(css=css) as demo:
             with gr.Row():
                 with gr.Column():
-                    self.input_image_path = gr.Image(label="input_image", type='filepath')
-                    self.prompt = gr.Textbox(label="prompt", lines=3)
-                    self.negative_prompt = gr.Textbox(label="negative_prompt", lines=3, value="sketch, lowres, error, extra digit, fewer digits, cropped, worst quality,low quality, normal quality, jpeg artifacts, blurry")
-                    prompt_analysis_button = gr.Button("prompt_analysis")
-                    self.controlnet_scale = gr.Slider(minimum=0.5, maximum=1.25, value=1.0, step=0.01, label="Lineart_fidelity")                 
-                    generate_button = gr.Button("generate")
+                    self.input_image_path = gr.Image(label="Input image", type='filepath')
+                    self.prompt = gr.Textbox(label="Prompt", lines=3)
+                    self.negative_prompt = gr.Textbox(label="Negative prompt", lines=3, value="sketch, lowres, error, extra digit, fewer digits, cropped, worst quality,low quality, normal quality, jpeg artifacts, blurry")
+                    prompt_analysis_button = gr.Button("Prompt analysis")
+                    self.controlnet_scale = gr.Slider(minimum=0.5, maximum=1.25, value=1.0, step=0.01, label="Lineart fidelity")                 
+                    generate_button = gr.Button(value="Generate", variant="primary")
                 with gr.Column():
-                    self.output_image = gr.Image(type="pil", label="output_image")
+                    self.output_image = gr.Image(type="pil", label="Output image")
 
             prompt_analysis_button.click(
                         self.process_prompt_analysis,
