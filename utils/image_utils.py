@@ -1,4 +1,4 @@
-from PIL import Image, ImageOps
+from PIL import Image, ImageChops
 import numpy as np
 import cv2
 from rembg import remove
