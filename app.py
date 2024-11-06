@@ -34,7 +34,7 @@ def load_model(lora_dir, cn_dir):
         "cagliostrolab/animagine-xl-3.1", controlnet=controlnet, vae=vae, torch_dtype=torch.float16
     )
     pipe.enable_model_cpu_offload()
-    pipe.load_lora_weights(lora_dir, weight_name="lineart.safetensors")
+    pipe.load_lora_weights(lora_dir, weight_name="syoujomannga_line.safetensors")
     return pipe
 
 @spaces.GPU(duration=120)
