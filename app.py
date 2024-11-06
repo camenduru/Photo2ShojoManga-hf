@@ -102,7 +102,7 @@ class Img2Img:
                     self.prompt = gr.Textbox(label="Prompt", lines=3)
                     self.negative_prompt = gr.Textbox(label="Negative prompt", lines=3, value="sketch, lowres, error, extra digit, fewer digits, cropped, worst quality,low quality, normal quality, jpeg artifacts, blurry")
                     prompt_analysis_button = gr.Button("Prompt analysis")
-                    self.controlnet_scale = gr.Slider(minimum=0.5, maximum=1.25, value=1.0, step=0.01, label="Lineart fidelity")                 
+                    self.controlnet_scale = gr.Slider(minimum=0.4, maximum=1.0, value=0.55, step=0.01, label="Photp fidelity")                 
                     generate_button = gr.Button(value="Generate", variant="primary")
                 with gr.Column():
                     self.output_image = gr.Image(type="pil", label="Output image")
