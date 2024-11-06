@@ -18,7 +18,7 @@ def background_removal(input_image_path):
         return None
         
     area_threshold=100 # 無視する小さい領域のピクセル数の閾値
-    alpha_threshold=128 # 無視する小さい領域のピクセル数の閾値
+    alpha_threshold=200 # 無視する小さい領域のピクセル数の閾値
 
     # 背景除去処理
     result = remove(input_image)
