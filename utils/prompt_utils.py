@@ -22,6 +22,6 @@ def remove_color(base_prompt):
 
 def execute_prompt(execute_tags, base_prompt):
     prompt_list = base_prompt.split(", ")
-    # execute_tagsに含まれる単語が1つでも含まれていたら除去
-    filtered_tags = [tag for tag in prompt_list if not any(execute_tag in tag for execute_tag in execute_tags)]
+    # execute_tagsに含まれる単語が1つでも含まれていれば除去
+    filtered_tags = [tag for tag in prompt_list if not any(execute_tag.lower() in tag.lower() for execute_tag in execute_tags)]
     return ", ".join(filtered_tags)
