@@ -14,17 +14,9 @@ def background_removal(input_image_path):
         return None
 
     # 背景除去処理
-    rgba_image = remove(input_image).convert("RGBA")
-    rgba_np = np.array(rgba_image)
-    alpha_channel = rgba_np[:, :, 3] / 255.0  # アルファを0~1の範囲に正規化
-
-    # 白背景の生成
-    background = np.ones_like(rgba_np[:, :, :3], dtype=np.uint8) * 255  # 白背景
-
-    # アルファブレンドを行い、透明部分を白と合成
-    result = (foreground * alpha_channel[:, :, None] + background * (1 - alpha_channel[:, :, None])).astype(np.uint8)
+    result = remove(input_image)
     
-    return Image.fromarray(result)
+    return result
 
 def resize_image_aspect_ratio(image):
     # 元の画像サイズを取得
