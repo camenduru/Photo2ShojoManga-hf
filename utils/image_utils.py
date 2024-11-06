@@ -5,7 +5,7 @@ from rembg import remove
 
 def background_removal(input_image_path):
     """
-    指定された画像から背景を除去し、白背景に置き換えた画像を返す関数
+    指定された画像から背景を除去し、透明部分のみを白背景に置き換えた画像を返す関数
     """
     try:
         input_image = Image.open(input_image_path)
@@ -18,11 +18,13 @@ def background_removal(input_image_path):
     rgba_np = np.array(rgba_image)
     alpha_channel = rgba_np[:, :, 3]
 
-    # 白背景の生成と合成
-    background = np.ones_like(rgba_np[:, :, :3], dtype=np.uint8) * 255
-    foreground = cv2.bitwise_and(rgba_np[:, :, :3], rgba_np[:, :, :3], mask=alpha_channel)
-    background_masked = cv2.bitwise_and(background, background, mask=cv2.bitwise_not(alpha_channel))
-    result = cv2.add(foreground, background_masked)
+    # 元画像と白背景のマスク作成
+    foreground = rgba_np[:, :, :3]  # RGB部分のみ取得
+    background = np.ones_like(foreground, dtype=np.uint8) * 255  # 白背景
+    
+    # 透過部分のみを白で塗りつぶす
+    # アルファマスクを使って背景（白）を透過部分に合成
+    result = np.where(alpha_channel[:, :, None] == 0, background, foreground)
     
     return Image.fromarray(result)
 
