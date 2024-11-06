@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from rembg import remove
 
-ef background_removal(input_image_path):
+def background_removal(input_image_path):
     """
     指定された画像から背景を除去し、透明部分を白背景にブレンドして返す関数。
     小さなドットや、指定のアルファ閾値以下の小さな半透明領域も無視してトリミングを行います。
