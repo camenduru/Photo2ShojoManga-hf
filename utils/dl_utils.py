@@ -57,10 +57,10 @@ def dl_tagger_model(model_dir):
 
 
 def dl_lora_model(model_dir):
-    file_name = 'lineart.safetensors'
+    file_name = 'syoujomannga_line.safetensors'
     file_path = os.path.join(model_dir, file_name)
     if not os.path.exists(file_path):
-        url = "https://huggingface.co/tori29umai/lineart/resolve/main/sdxl_BWLine.safetensors"
+        url = "https://huggingface.co/tori29umai/Egara_Lora/resolve/main/syoujomannga_line.safetensors"
         response = requests.get(url, allow_redirects=True)
         if response.status_code == 200:
             with open(file_path, 'wb') as f:
