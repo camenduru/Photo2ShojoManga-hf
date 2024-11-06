@@ -1,35 +1,31 @@
-from PIL import Image, ImageChops
+from PIL import Image
 import numpy as np
 import cv2
 from rembg import remove
 
 def background_removal(input_image_path):
     """
-    指定された画像から背景を除去し、白以外の領域でトリミングした画像を返す関数
+    指定された画像から背景を除去し、透明部分を白背景にブレンドして返す関数。
+    透過されていない部分でトリミングも行います。
     """
     try:
-        input_image = Image.open(input_image_path).convert("RGB")
+        input_image = Image.open(input_image_path).convert("RGBA")
     except IOError:
         print(f"Error: Cannot open {input_image_path}")
         return None
 
-    # 背景除去処理 (白背景のRGB画像として返される)
-    result_image = remove(input_image).convert("RGB")
+    # 背景除去処理
+    result = remove(input_image)
 
-    # トリミング処理
-    bg = Image.new("RGB", result_image.size, (255, 255, 255))  # 白背景
-    diff = ImageChops.difference(result_image, bg)
-    bbox = diff.getbbox()  # 白以外の部分を含む境界ボックスを取得
-
+    # 透過されていない部分をトリミング
+    bbox = result.getbbox()
     if bbox:
-        cropped_image = result_image.crop(bbox)
-    else:
-        cropped_image = result_image  # 全部が白の場合はそのまま返す
+        result = result.crop(bbox)
 
-    # 結果を保存
+    # 結果を一時ファイルに保存
     result_path = "tmp.png"
-    cropped_image.save(result_path)
-    
+    result.save(result_path)
+
     return result_path
 
 def resize_image_aspect_ratio(image):
