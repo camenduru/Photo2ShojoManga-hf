@@ -23,6 +23,5 @@ def remove_color(base_prompt):
 def execute_prompt(execute_tags, base_prompt):
     prompt_list = base_prompt.split(", ")
     # execute_tagsを除去
-    filtered_tags = [tag for tag in prompt_list if tag not in execute_tags]
-    # 最終的なプロンプトを生成
+    filtered_tags = [tag for tag in prompt_list if all(execute_tag.lower() not in tag.lower() for execute_tag in execute_tags)]
     return ", ".join(filtered_tags)
