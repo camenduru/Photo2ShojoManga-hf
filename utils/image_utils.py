@@ -1,31 +1,18 @@
 from PIL import Image, ImageOps
 import numpy as np
 import cv2
+from rembg import remove
 
-def canny_process(image_path, threshold1, threshold2):
-    # 画像を開き、RGBA形式に変換して透過情報を保持
-    img = Image.open(image_path)
-    img = img.convert("RGBA")
+def remove_background(input_image):
+    rgba_image = remove(input_image)
+    # アルファチャネルをマスクとして使用
+    alpha_channel = rgba_image[:, :, 3]
 
-    canvas_image = Image.new('RGBA', img.size, (255, 255, 255, 255))
-    
-    # 画像をキャンバスにペーストし、透過部分が白色になるように設定
-    canvas_image.paste(img, (0, 0), img)
-
-    # RGBAからRGBに変換し、透過部分を白色にする
-    image_pil = canvas_image.convert("RGB")
-    image_np = np.array(image_pil)
-    
-    # グレースケール変換
-    gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
-    # Cannyエッジ検出
-    edges = cv2.Canny(gray, threshold1, threshold2)
-    
-    canny = Image.fromarray(edges)
-    
-    
-    return canny
-
+    # 白い背景画像を作成
+    background = np.ones_like(rgba_image, dtype=np.uint8) * 255
+    # マスクを適用
+    background_masked = cv2.bitwise_and(background, background, mask=alpha_channel)
+    return background_masked
 
 def resize_image_aspect_ratio(image):
     # 元の画像サイズを取得
