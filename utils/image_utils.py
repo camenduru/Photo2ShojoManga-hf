@@ -18,7 +18,7 @@ def background_removal(input_image_path):
     result_path = "tmp.png"
     result.save(result_path)
     
-    return result
+    return result_path
 
 def resize_image_aspect_ratio(image):
     # 元の画像サイズを取得
