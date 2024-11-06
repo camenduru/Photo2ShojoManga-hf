@@ -47,7 +47,7 @@ def predict(input_image_path, prompt, negative_prompt, controlnet_scale):
     generator = torch.manual_seed(0)
     last_time = time.time()
     prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, " + prompt
-    execute_tags = ["sketch", "transparent background", "realistic", "realistic", "nose", "asian"]
+    execute_tags = ["realistic", "nose", "asian"]
     prompt = execute_prompt(execute_tags, prompt)
     prompt = remove_duplicates(prompt)        
     prompt = remove_color(prompt)
