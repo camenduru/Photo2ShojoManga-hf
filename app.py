@@ -95,13 +95,13 @@ class Img2Img:
             with gr.Row():
                 with gr.Column():
                     self.input_image_path = gr.Image(label="Input image", type='filepath')
-                    self.bg_removed_image = gr.Image(label="Background Removed Image")
+                    self.bg_removed_image_path = gr.Image(label="Background Removed Image", type='filepath')
                     
                     # 自動背景除去トリガー
                     self.input_image_path.change(
                         fn=self.auto_background_removal,
                         inputs=[self.input_image_path],
-                        outputs=[self.bg_removed_image]
+                        outputs=[self.bg_removed_image_path]
                     )
 
                     self.prompt = gr.Textbox(label="Prompt", lines=3)
@@ -115,13 +115,13 @@ class Img2Img:
 
             prompt_analysis_button.click(
                 fn=self.process_prompt_analysis,
-                inputs=[self.input_image_path],
+                inputs=[self.bg_removed_image_path],
                 outputs=self.prompt
             )
 
             generate_button.click(
                 fn=predict,
-                inputs=[self.input_image_path, self.prompt, self.negative_prompt, self.controlnet_scale],
+                inputs=[self.bg_removed_image_path, self.prompt, self.negative_prompt, self.controlnet_scale],
                 outputs=self.output_image
             )
         return demo
