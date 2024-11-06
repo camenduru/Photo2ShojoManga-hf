@@ -81,6 +81,9 @@ class Img2Img:
             self.tagger_model = modelLoad(tagger_dir)
         tags = analysis(input_image_path, tagger_dir, self.tagger_model)
         tags_list = remove_color(tags)
+        execute_tags = ["realistic", "nose", "asian"]
+        tags_list = execute_prompt(execute_tags, prompt)
+        tags_list = remove_duplicates(prompt)               
         return tags_list
 
 
