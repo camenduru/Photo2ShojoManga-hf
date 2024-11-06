@@ -6,8 +6,8 @@ from rembg import remove
 def background_removal(input_image_path):
     """
     指定された画像から背景を除去し、透明部分を白背景にブレンドして返す関数。
-    小さなドットを無視してトリミングも行います。
-    
+    小さなドットや小さい半透明領域も無視してトリミングを行います。
+
     Parameters:
     - input_image_path: 背景除去する画像のパス
     """
@@ -18,21 +18,22 @@ def background_removal(input_image_path):
         return None
         
     area_threshold=100  # 無視する小さい領域のピクセル数の閾値
-    
     # 背景除去処理
     result = remove(input_image)
 
-    # 透過部分のマスクを作成し、小さな領域を無視
+    # アルファチャンネル取得
     alpha = result.split()[-1]  # アルファチャンネルを取得
     bbox = alpha.getbbox()
     if bbox:
-        # bbox 内の透過されていないピクセルを数える
+        # bbox 内の完全透過でないピクセルをカウント
         cropped_alpha = alpha.crop(bbox)
-        non_transparent_pixels = sum(cropped_alpha.getdata()) // 255
+        non_transparent_pixel_count = sum(1 for pixel in cropped_alpha.getdata() if pixel > 0)
         
         # 指定した閾値以上の領域がある場合のみトリミング
-        if non_transparent_pixels >= area_threshold:
+        if non_transparent_pixel_count >= area_threshold:
             result = result.crop(bbox)
+        else:
+            print("Small transparent region ignored")
 
     # 結果を一時ファイルに保存
     result_path = "tmp.png"
