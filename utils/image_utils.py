@@ -3,10 +3,10 @@ import numpy as np
 import cv2
 from rembg import remove
 
-def background_removal(input_image_path):
+ef background_removal(input_image_path):
     """
     指定された画像から背景を除去し、透明部分を白背景にブレンドして返す関数。
-    小さなドットや小さい半透明領域も無視してトリミングを行います。
+    小さなドットや、指定のアルファ閾値以下の小さな半透明領域も無視してトリミングを行います。
 
     Parameters:
     - input_image_path: 背景除去する画像のパス
@@ -17,7 +17,9 @@ def background_removal(input_image_path):
         print(f"Error: Cannot open {input_image_path}")
         return None
         
-    area_threshold=1000  # 無視する小さい領域のピクセル数の閾値
+    area_threshold=100　# 無視する小さい領域のピクセル数の閾値
+    alpha_threshold=128　# 無視する小さい領域のピクセル数の閾値
+
     # 背景除去処理
     result = remove(input_image)
 
@@ -25,15 +27,15 @@ def background_removal(input_image_path):
     alpha = result.split()[-1]  # アルファチャンネルを取得
     bbox = alpha.getbbox()
     if bbox:
-        # bbox 内の完全透過でないピクセルをカウント
+        # bbox 内の非透過ピクセルをカウント (alpha_threshold より大きいピクセルのみ)
         cropped_alpha = alpha.crop(bbox)
-        non_transparent_pixel_count = sum(1 for pixel in cropped_alpha.getdata() if pixel > 0)
+        non_transparent_pixel_count = sum(1 for pixel in cropped_alpha.getdata() if pixel >= alpha_threshold)
         
         # 指定した閾値以上の領域がある場合のみトリミング
         if non_transparent_pixel_count >= area_threshold:
             result = result.crop(bbox)
         else:
-            print("Small transparent region ignored")
+            print("Small or semi-transparent region ignored")
 
     # 結果を一時ファイルに保存
     result_path = "tmp.png"
