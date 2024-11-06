@@ -3,16 +3,28 @@ import numpy as np
 import cv2
 from rembg import remove
 
-def remove_background(input_image):
-    rgba_image = remove(input_image)
-    # アルファチャネルをマスクとして使用
-    alpha_channel = rgba_image[:, :, 3]
+def background_removal(input_image_path):
+    """
+    指定された画像から背景を除去し、白背景に置き換えた画像を返す関数
+    """
+    try:
+        input_image = Image.open(input_image_path)
+    except IOError:
+        print(f"Error: Cannot open {input_image_path}")
+        return None
 
-    # 白い背景画像を作成
-    background = np.ones_like(rgba_image, dtype=np.uint8) * 255
-    # マスクを適用
-    background_masked = cv2.bitwise_and(background, background, mask=alpha_channel)
-    return background_masked
+    # 背景除去処理
+    rgba_image = remove(input_image).convert("RGBA")
+    rgba_np = np.array(rgba_image)
+    alpha_channel = rgba_np[:, :, 3]
+
+    # 白背景の生成と合成
+    background = np.ones_like(rgba_np[:, :, :3], dtype=np.uint8) * 255
+    foreground = cv2.bitwise_and(rgba_np[:, :, :3], rgba_np[:, :, :3], mask=alpha_channel)
+    background_masked = cv2.bitwise_and(background, background, mask=cv2.bitwise_not(alpha_channel))
+    result = cv2.add(foreground, background_masked)
+    
+    return Image.fromarray(result)
 
 def resize_image_aspect_ratio(image):
     # 元の画像サイズを取得
