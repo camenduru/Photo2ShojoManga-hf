@@ -64,7 +64,9 @@ class Img2Img:
         elif lora_model == "少女漫画風":
             self.pipe.load_lora_weights(lora_dir, weight_name="syoujomannga_line.safetensors")        
         elif lora_model == "劇画調風":
-            self.pipe.load_lora_weights(lora_dir, weight_name="gekiga_line.safetensors")           
+            self.pipe.load_lora_weights(lora_dir, weight_name="gekiga_line.safetensors")
+        elif lora_model == "プレーン":
+            pass
 
         # 現在のlora_modelを保存
         self.current_lora_model = lora_model
