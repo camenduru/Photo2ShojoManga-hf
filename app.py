@@ -71,7 +71,18 @@ def predict(lora_model, input_image_path, prompt, negative_prompt, controlnet_sc
     last_time = time.time()
     
     # プロンプト生成
-    prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, star-shaped pupils, " + prompt
+
+    # LoRAモデルの設定
+    if lora_model == "とりにく風":
+        prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, chibi " + prompt              
+    elif lora_model == "少女漫画風":
+        prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, star-shaped pupils, " + prompt      
+    elif lora_model == "劇画調風":
+        prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, " + prompt    
+    elif lora_model == "プレーン":
+        prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, " + prompt  
+    
+
     execute_tags = ["realistic", "nose", "asian"]
     prompt = execute_prompt(execute_tags, prompt)
     prompt = remove_duplicates(prompt)        
@@ -123,7 +134,7 @@ class Img2Img:
             with gr.Row():
                 with gr.Column():
                     # LoRAモデル選択ドロップダウン
-                    self.lora_model = gr.Dropdown(label="Image Style",  choices=["プレーン", "とりにく風", "少女漫画風", "劇画調風"], value="プレーン")
+                    self.lora_model = gr.Dropdown(label="Image Style",  choices=["プレーン", "とりにく風", "少女漫画風"], value="プレーン")
                     self.input_image_path = gr.Image(label="Input image", type='filepath')
                     self.bg_removed_image_path = gr.Image(label="Background Removed Image", type='filepath')
                     
