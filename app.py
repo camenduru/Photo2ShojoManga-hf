@@ -23,50 +23,68 @@ dl_cn_config(cn_dir)
 dl_tagger_model(tagger_dir)
 dl_lora_model(lora_dir)
 
-@spaces.GPU(duration=120)
-def predict(lora_model, input_image_path, prompt, negative_prompt, controlnet_scale, load_model_fn):
-    # LoRAモデルに基づきpipeを取得
-    pipe = load_model_fn(lora_model)
-    input_image = Image.open(input_image_path)
-    base_image = base_generation(input_image.size, (255, 255, 255, 255)).convert("RGB")
-    resize_image = resize_image_aspect_ratio(input_image)
-    resize_base_image = resize_image_aspect_ratio(base_image)
-    generator = torch.manual_seed(0)
-    last_time = time.time()
-    
-    # プロンプト生成
-    prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, star-shaped pupils, " + prompt
-    execute_tags = ["realistic", "nose", "asian"]
-    prompt = execute_prompt(execute_tags, prompt)
-    prompt = remove_duplicates(prompt)
-    prompt = remove_color(prompt)
-    print(prompt)
-    
-    # 画像生成
-    output_image = pipe(
-        image=resize_base_image,
-        control_image=resize_image,
-        strength=1.0,
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        controlnet_conditioning_scale=float(controlnet_scale),
-        generator=generator,
-        num_inference_steps=30,
-        eta=1.0,
-    ).images[0]
-    print(f"Time taken: {time.time() - last_time}")
-    output_image = output_image.resize(input_image.size, Image.LANCZOS)
-    return output_image
-
-
 class Img2Img:
     def __init__(self):
         self.demo = self.layout()
         self.tagger_model = None
         self.input_image_path = None
         self.bg_removed_image = None
-        self.pipe = None
-        self.current_lora_model = None
+
+    def load_model(self, lora_model):
+        dtype = torch.float16
+        vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16)
+        controlnet = ControlNetModel.from_pretrained(cn_dir, torch_dtype=dtype, use_safetensors=True)
+
+        pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(
+            "cagliostrolab/animagine-xl-3.1", controlnet=controlnet, vae=vae, torch_dtype=torch.float16
+        )
+        pipe.enable_model_cpu_offload()
+
+        # LoRAモデルの設定
+        if lora_model == "とりにく風":
+            pipe.load_lora_weights(lora_dir, weight_name="tori29umai_line.safetensors")             
+        elif lora_model == "少女漫画風":
+            pipe.load_lora_weights(lora_dir, weight_name="syoujomannga_line.safetensors")        
+        elif lora_model == "劇画調風":
+            pipe.load_lora_weights(lora_dir, weight_name="gekiga_line.safetensors")
+        elif lora_model == "プレーン":
+            pass  # プレーンの場合はLoRAを読み込まない
+
+        return pipe
+
+    @spaces.GPU(duration=120)
+    def predict(self, lora_model, input_image_path, prompt, negative_prompt, controlnet_scale):
+        pipe = self.load_model(lora_model)
+        input_image = Image.open(input_image_path)
+        base_image = base_generation(input_image.size, (255, 255, 255, 255)).convert("RGB")
+        resize_image = resize_image_aspect_ratio(input_image)
+        resize_base_image = resize_image_aspect_ratio(base_image)
+        generator = torch.manual_seed(0)
+        last_time = time.time()
+        
+        # プロンプト生成
+        prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, star-shaped pupils, " + prompt
+        execute_tags = ["realistic", "nose", "asian"]
+        prompt = execute_prompt(execute_tags, prompt)
+        prompt = remove_duplicates(prompt)        
+        prompt = remove_color(prompt)
+        print(prompt)
+
+        # 画像生成
+        output_image = pipe(
+            image=resize_base_image,
+            control_image=resize_image,
+            strength=1.0,
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            controlnet_conditioning_scale=float(controlnet_scale),
+            generator=generator,
+            num_inference_steps=30,
+            eta=1.0,
+        ).images[0]
+        print(f"Time taken: {time.time() - last_time}")
+        output_image = output_image.resize(input_image.size, Image.LANCZOS)
+        return output_image
 
     def process_prompt_analysis(self, input_image_path):
         if self.tagger_model is None:
@@ -77,36 +95,6 @@ class Img2Img:
         prompt = execute_prompt(execute_tags, prompt)
         prompt = remove_duplicates(prompt)
         return prompt
-       
-        
-    def load_model(self, lora_model):
-        # 既に正しいpipeがロードされている場合は再利用
-        if self.pipe and self.current_lora_model == lora_model:
-            return self.pipe  # キャッシュされたpipeを返す
-
-        # 新しいpipeの生成
-        dtype = torch.float16
-        vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=dtype)
-        controlnet = ControlNetModel.from_pretrained(cn_dir, torch_dtype=dtype, use_safetensors=True)
-
-        self.pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(
-            "cagliostrolab/animagine-xl-3.1", controlnet=controlnet, vae=vae, torch_dtype=dtype
-        )
-        self.pipe.enable_model_cpu_offload()
-
-        # LoRAモデルの設定
-        if lora_model == "とりにく風":
-            self.pipe.load_lora_weights(lora_dir, weight_name="tori29umai_line.safetensors")             
-        elif lora_model == "少女漫画風":
-            self.pipe.load_lora_weights(lora_dir, weight_name="syoujomannga_line.safetensors")        
-        elif lora_model == "劇画調風":
-            self.pipe.load_lora_weights(lora_dir, weight_name="gekiga_line.safetensors")
-        elif lora_model == "プレーン":
-            pass
-
-        # 現在のlora_modelを保存
-        self.current_lora_model = lora_model
-        return self.pipe
 
     def layout(self):
         css = """
@@ -119,7 +107,8 @@ class Img2Img:
         with gr.Blocks(css=css) as demo:
             with gr.Row():
                 with gr.Column():
-                    self.lora_model = gr.Dropdown(label="Image Style",  choices=["プレーン", "とりにく風", "少女漫画風"], value="プレーン")                    
+                    # LoRAモデル選択ドロップダウン
+                    self.lora_model = gr.Dropdown(label="Image Style",  choices=["プレーン", "とりにく風", "少女漫画風", "劇画調風"], value="プレーン")
                     self.input_image_path = gr.Image(label="Input image", type='filepath')
                     self.bg_removed_image_path = gr.Image(label="Background Removed Image", type='filepath')
                     
@@ -146,8 +135,7 @@ class Img2Img:
             )
 
             generate_button.click(
-                fn=lambda lora_model, input_image_path, prompt, negative_prompt, controlnet_scale: 
-                   predict(lora_model, input_image_path, prompt, negative_prompt, controlnet_scale, self.load_model),
+                fn=self.predict,
                 inputs=[self.lora_model, self.bg_removed_image_path, self.prompt, self.negative_prompt, self.controlnet_scale],
                 outputs=self.output_image
             )
