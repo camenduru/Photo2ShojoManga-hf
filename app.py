@@ -67,7 +67,7 @@ def predict(lora_model, input_image_path, prompt, negative_prompt, controlnet_sc
     last_time = time.time()
     
     # プロンプト生成
-     prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, " + prompt  
+    prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, " + prompt  
     
     execute_tags = ["realistic", "nose", "asian"]
     prompt = execute_prompt(execute_tags, prompt)
