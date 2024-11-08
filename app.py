@@ -67,6 +67,17 @@ class Img2Img:
         self.bg_removed_image = None
         self.pipe = None
         self.current_lora_model = None
+
+    def process_prompt_analysis(self, input_image_path):
+        if self.tagger_model is None:
+            self.tagger_model = modelLoad(tagger_dir)
+        tags = analysis(input_image_path, tagger_dir, self.tagger_model)
+        prompt = remove_color(tags)
+        execute_tags = ["realistic", "nose", "asian"]
+        prompt = execute_prompt(execute_tags, prompt)
+        prompt = remove_duplicates(prompt)
+        return prompt
+       
         
     def load_model(self, lora_model):
         # 既に正しいpipeがロードされている場合は再利用
