@@ -60,6 +60,7 @@ def predict(self, lora_model, input_image_path, prompt, negative_prompt, control
     return output_image
 
 
+
 class Img2Img:
     def __init__(self):
         self.demo = self.layout()
