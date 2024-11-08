@@ -1,5 +1,5 @@
 ---
-title: Photo2Linestyle
+title: Photo2Tori29umaiStyle
 emoji: 🚀
 colorFrom: green
 colorTo: pink
