@@ -1,3 +1,28 @@
+import spaces
+import gradio as gr
+import torch
+from diffusers import ControlNetModel, StableDiffusionXLControlNetImg2ImgPipeline, AutoencoderKL
+from PIL import Image
+import os
+import time
+from utils.dl_utils import dl_cn_model, dl_cn_config, dl_tagger_model, dl_lora_model
+from utils.image_utils import resize_image_aspect_ratio, base_generation, background_removal
+from utils.prompt_utils import execute_prompt, remove_color, remove_duplicates
+from utils.tagger import modelLoad, analysis
+
+path = os.getcwd()
+cn_dir = f"{path}/controlnet"
+tagger_dir = f"{path}/tagger"
+lora_dir = f"{path}/lora"
+os.makedirs(cn_dir, exist_ok=True)
+os.makedirs(tagger_dir, exist_ok=True)
+os.makedirs(lora_dir, exist_ok=True)
+
+dl_cn_model(cn_dir)
+dl_cn_config(cn_dir)
+dl_tagger_model(tagger_dir)
+dl_lora_model(lora_dir)
+
 @spaces.GPU(duration=120)
 def predict(lora_model, input_image_path, prompt, negative_prompt, controlnet_scale, load_model_fn):
     # LoRAモデルに基づきpipeを取得
