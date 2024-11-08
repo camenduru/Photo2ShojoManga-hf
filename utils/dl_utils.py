@@ -57,16 +57,22 @@ def dl_tagger_model(model_dir):
 
 
 def dl_lora_model(model_dir):
-    file_name = 'syoujomannga_line.safetensors'
-    file_path = os.path.join(model_dir, file_name)
-    if not os.path.exists(file_path):
-        url = "https://huggingface.co/tori29umai/Egara_Lora/resolve/main/syoujomannga_line.safetensors"
-        response = requests.get(url, allow_redirects=True)
-        if response.status_code == 200:
-            with open(file_path, 'wb') as f:
-                f.write(response.content)
-            print(f'Downloaded {file_name}')
+    models = {
+        "syoujomannga_line.safetensors": "https://huggingface.co/tori29umai/Egara_Lora/resolve/main/syoujomannga_line.safetensors",
+        "tori29umai_line.safetensors": "https://huggingface.co/tori29umai/Egara_Lora/resolve/main/tori29umai_line.safetensors",
+    # "gekiga_line.safetensors": "https://huggingface.co/tori29umai/Egara_Lora/resolve/main/gekiga_line.safetensors"
+    }
+    
+    # 各モデルを確認し、必要に応じてダウンロード
+    for file_name, url in models.items():
+        file_path = os.path.join(model_dir, file_name)
+        if not os.path.exists(file_path):
+            response = requests.get(url, allow_redirects=True)
+            if response.status_code == 200:
+                with open(file_path, 'wb') as f:
+                    f.write(response.content)
+                print(f'Downloaded {file_name}')
+            else:
+                print(f'Failed to download {file_name}')
         else:
-            print(f'Failed to download {file_name}')
-    else:
-        print(f'{file_name} already exists.')
+            print(f'{file_name} already exists.')
