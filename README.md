@@ -1,5 +1,5 @@
 ---
-title: Photo2Sketch
+title: photo2Linestyle
 emoji: 🚀
 colorFrom: green
 colorTo: pink
