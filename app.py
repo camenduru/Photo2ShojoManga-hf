@@ -46,7 +46,7 @@ def load_model(lora_model):
     # LoRAモデルの設定
     if lora_model == "とりにく風":
         pipe.load_lora_weights(lora_dir, weight_name="tori29umai_line.safetensors", adapter_name="tori29umai_line")
-        pipe.set_adapters(["tori29umai_line"], adapter_weights=[0.7])
+        pipe.set_adapters(["tori29umai_line"], adapter_weights=[0.6])
     elif lora_model == "プレーン":
         pass  # プレーンの場合はLoRAを読み込まない
 
