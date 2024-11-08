@@ -63,7 +63,10 @@ class Img2Img:
 
     @spaces.GPU(duration=120)
     def predict(self, lora_model, input_image_path, prompt, negative_prompt, controlnet_scale):
+        # ここで新たなpipeを作成するのではなく、キャッシュしたpipeを取得
         pipe = self.load_model(lora_model)
+        
+        # 画像読み込みとリサイズ
         input_image = Image.open(input_image_path)
         base_image = base_generation(input_image.size, (255, 255, 255, 255)).convert("RGB")
         resize_image = resize_image_aspect_ratio(input_image)
