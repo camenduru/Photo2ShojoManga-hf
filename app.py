@@ -29,28 +29,37 @@ class Img2Img:
         self.tagger_model = None
         self.input_image_path = None
         self.bg_removed_image = None
+        self.pipe = None
+        self.current_lora_model = None
 
     def load_model(self, lora_model):
+        # 既にロードされたpipeがあり、同じLoRAモデルの場合は再利用
+        if self.pipe and self.current_lora_model == lora_model:
+            return self.pipe  # キャッシュされたpipeを返す
+
+        # 新しいpipeの生成
         dtype = torch.float16
-        vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16)
+        vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=dtype)
         controlnet = ControlNetModel.from_pretrained(cn_dir, torch_dtype=dtype, use_safetensors=True)
 
-        pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(
-            "cagliostrolab/animagine-xl-3.1", controlnet=controlnet, vae=vae, torch_dtype=torch.float16
+        self.pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(
+            "cagliostrolab/animagine-xl-3.1", controlnet=controlnet, vae=vae, torch_dtype=dtype
         )
-        pipe.enable_model_cpu_offload()
+        self.pipe.enable_model_cpu_offload()
 
         # LoRAモデルの設定
         if lora_model == "とりにく風":
-            pipe.load_lora_weights(lora_dir, weight_name="tori29umai_line.safetensors")             
+            self.pipe.load_lora_weights(lora_dir, weight_name="tori29umai_line.safetensors")             
         elif lora_model == "少女漫画風":
-            pipe.load_lora_weights(lora_dir, weight_name="syoujomannga_line.safetensors")        
+            self.pipe.load_lora_weights(lora_dir, weight_name="syoujomannga_line.safetensors")        
         elif lora_model == "劇画調風":
-            pipe.load_lora_weights(lora_dir, weight_name="gekiga_line.safetensors")
+            self.pipe.load_lora_weights(lora_dir, weight_name="gekiga_line.safetensors")
         elif lora_model == "プレーン":
             pass  # プレーンの場合はLoRAを読み込まない
 
-        return pipe
+        # 現在のLoRAモデルを保存
+        self.current_lora_model = lora_model
+        return self.pipe
 
     @spaces.GPU(duration=120)
     def predict(self, lora_model, input_image_path, prompt, negative_prompt, controlnet_scale):
