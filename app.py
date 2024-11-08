@@ -23,44 +23,6 @@ dl_cn_config(cn_dir)
 dl_tagger_model(tagger_dir)
 dl_lora_model(lora_dir)
 
-
-@spaces.GPU(duration=120)
-def predict(self, lora_model, input_image_path, prompt, negative_prompt, controlnet_scale):
-    # LoRAモデルに基づきpipeを取得
-    pipe = self.load_model(lora_model)
-    input_image = Image.open(input_image_path)
-    base_image = base_generation(input_image.size, (255, 255, 255, 255)).convert("RGB")
-    resize_image = resize_image_aspect_ratio(input_image)
-    resize_base_image = resize_image_aspect_ratio(base_image)
-    generator = torch.manual_seed(0)
-    last_time = time.time()
-    
-    # プロンプト生成
-    prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, star-shaped pupils, " + prompt
-    execute_tags = ["realistic", "nose", "asian"]
-    prompt = execute_prompt(execute_tags, prompt)
-    prompt = remove_duplicates(prompt)
-    prompt = remove_color(prompt)
-    print(prompt)
-
-    # 画像生成
-    output_image = pipe(
-        image=resize_base_image,
-        control_image=resize_image,
-        strength=1.0,
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        controlnet_conditioning_scale=float(controlnet_scale),
-        generator=generator,
-        num_inference_steps=30,
-        eta=1.0,
-    ).images[0]
-    print(f"Time taken: {time.time() - last_time}")
-    output_image = output_image.resize(input_image.size, Image.LANCZOS)
-    return output_image
-
-
-
 class Img2Img:
     def __init__(self):
         self.demo = self.layout()
@@ -69,7 +31,42 @@ class Img2Img:
         self.bg_removed_image = None
         self.pipe = None
         self.current_lora_model = None
+
+    @spaces.GPU(duration=120)
+    def predict(self, lora_model, input_image_path, prompt, negative_prompt, controlnet_scale):
+        # LoRAモデルに基づきpipeを取得
+        pipe = self.load_model(lora_model)
+        input_image = Image.open(input_image_path)
+        base_image = base_generation(input_image.size, (255, 255, 255, 255)).convert("RGB")
+        resize_image = resize_image_aspect_ratio(input_image)
+        resize_base_image = resize_image_aspect_ratio(base_image)
+        generator = torch.manual_seed(0)
+        last_time = time.time()
         
+        # プロンプト生成
+        prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, star-shaped pupils, " + prompt
+        execute_tags = ["realistic", "nose", "asian"]
+        prompt = execute_prompt(execute_tags, prompt)
+        prompt = remove_duplicates(prompt)
+        prompt = remove_color(prompt)
+        print(prompt)
+    
+        # 画像生成
+        output_image = pipe(
+            image=resize_base_image,
+            control_image=resize_image,
+            strength=1.0,
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            controlnet_conditioning_scale=float(controlnet_scale),
+            generator=generator,
+            num_inference_steps=30,
+            eta=1.0,
+        ).images[0]
+        print(f"Time taken: {time.time() - last_time}")
+        output_image = output_image.resize(input_image.size, Image.LANCZOS)
+        return output_image
+    
     def load_model(self, lora_model):
         # 既に正しいpipeがロードされている場合は再利用
         if self.pipe and self.current_lora_model == lora_model:
