@@ -5,7 +5,7 @@ diffusers==0.27.0
 accelerate
 xformers
 safetensors
-huggingface-hub
+huggingface-hub==0.25.2
 hf-transfer
 compel
 opencv-python
