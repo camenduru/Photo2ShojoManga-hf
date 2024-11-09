@@ -1,7 +1,7 @@
 import spaces
 import gradio as gr
 import torch
-from diffusers import ControlNetModel, StableDiffusionXLControlNetImg2ImgPipeline, AutoencoderKL, TCDScheduler
+from diffusers import ControlNetModel, StableDiffusionXLControlNetImg2ImgPipeline, AutoencoderKL
 from PIL import Image
 import os
 import time
@@ -41,20 +41,14 @@ def load_model(lora_model):
     pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(
         "cagliostrolab/animagine-xl-3.1", controlnet=controlnet, vae=vae, torch_dtype=dtype
     )
-    pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
-    
     pipe.enable_model_cpu_offload()
 
     # LoRAモデルの設定
     if lora_model == "とりにく風":
-        pipe.load_lora_weights(lora_dir, weight_name="tcd-animaginexl-3_1.safetensors", adapter_name="tcd-animaginexl-3_1")
-        pipe.load_lora_weights(lora_dir, weight_name="tori29umai_line.safetensors", adapter_name="tori29umai_line")        
-        pipe.set_adapters(["tcd-animaginexl-3_1", "tori29umai_line"], adapter_weights=[1.0, 1.4])
-        pipe.fuse_lora()
+        pipe.load_lora_weights(lora_dir, weight_name="tori29umai_line.safetensors", adapter_name="tori29umai_line")
+        pipe.set_adapters(["tori29umai_line"], adapter_weights=[1.0])
     elif lora_model == "プレーン":
-        pipe.load_lora_weights(lora_dir, weight_name="tcd-animaginexl-3_1.safetensors", adapter_name="tcd-animaginexl-3_1")    
-        pipe.set_adapters(["tcd-animaginexl-3_1"], adapter_weights=[1.0])
-        pipe.fuse_lora()
+        pass  # プレーンの場合はLoRAを読み込まない
 
     # 現在のLoRAモデルを保存
     current_lora_model = lora_model
@@ -91,9 +85,8 @@ def predict(lora_model, input_image_path, prompt, negative_prompt, controlnet_sc
         negative_prompt=negative_prompt,
         controlnet_conditioning_scale=float(controlnet_scale),
         generator=generator,
-        num_inference_steps=4,
-        guidance_scale=0,
-        eta=0.3, 
+        num_inference_steps=30,
+        eta=1.0,
     ).images[0]
     print(f"Time taken: {time.time() - last_time}")
     output_image = output_image.resize(input_image.size, Image.LANCZOS)
