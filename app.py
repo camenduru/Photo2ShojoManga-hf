@@ -44,7 +44,7 @@ def load_model(lora_model):
     pipe.enable_model_cpu_offload()
 
     # LoRAモデルの設定
-    if lora_model == "とりにく風":
+    if lora_model == "少女漫画風":
         pipe.load_lora_weights(lora_dir, weight_name="tori29umai_line.safetensors", adapter_name="tori29umai_line")
         pipe.set_adapters(["tori29umai_line"], adapter_weights=[1.0])
     elif lora_model == "プレーン":
@@ -66,9 +66,16 @@ def predict(lora_model, input_image_path, prompt, negative_prompt, controlnet_sc
     resize_base_image = resize_image_aspect_ratio(base_image)
     generator = torch.manual_seed(0)
     last_time = time.time()
+
+    # LoRAモデルの設定
+    if lora_model == "少女漫画風":
+        prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, bright pupils, " + prompt  
+    elif lora_model == "プレーン":
+        # プロンプト生成
+        prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, " + prompt  
+
     
-    # プロンプト生成
-    prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, " + prompt  
+
     
     execute_tags = ["realistic", "nose", "asian"]
     prompt = execute_prompt(execute_tags, prompt)
@@ -104,7 +111,7 @@ class Img2Img:
             self.tagger_model = modelLoad(tagger_dir)
         tags = analysis(input_image_path, tagger_dir, self.tagger_model)
         prompt = remove_color(tags)
-        execute_tags = ["realistic", "nose", "asian"]
+        execute_tags = ["realistic", "nose", "asian", "smile"]
         prompt = execute_prompt(execute_tags, prompt)
         prompt = remove_duplicates(prompt)
         return prompt
@@ -121,7 +128,7 @@ class Img2Img:
             with gr.Row():
                 with gr.Column():
                     # LoRAモデル選択ドロップダウン
-                    self.lora_model = gr.Dropdown(label="Image Style",  choices=["とりにく風", "プレーン"], value="とりにく風")
+                    self.lora_model = gr.Dropdown(label="Image Style",  choices=["少女漫画風", "プレーン"], value="少女漫画風")
                     self.input_image_path = gr.Image(label="Input image", type='filepath')
                     self.bg_removed_image_path = gr.Image(label="Background Removed Image", type='filepath')
                     
