@@ -145,7 +145,7 @@ class Img2Img:
                     )
 
                     self.negative_prompt = gr.Textbox(label="Negative prompt", lines=3, value="nose, asian, realistic, lowres, error, extra digit, fewer digits, cropped, worst quality,low quality, normal quality, jpeg artifacts, blurry")
-                    self.controlnet_scale = gr.Slider(minimum=0.4, maximum=1.0, value=0.55, step=0.01, label="Photo fidelity")                 
+                    self.controlnet_scale = gr.Slider(minimum=0.4, maximum=1.0, value=0.75, step=0.01, label="Photo fidelity")                 
                     generate_button = gr.Button(value="Generate", variant="primary")
 
                 with gr.Column():
