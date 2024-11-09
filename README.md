@@ -1,5 +1,5 @@
 ---
-title: Photo2Tori29umaiStyle
+title: Photo2ShōjoManga
 emoji: 🚀
 colorFrom: green
 colorTo: pink
