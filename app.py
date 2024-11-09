@@ -135,6 +135,7 @@ class Img2Img:
                     self.lora_model = gr.Dropdown(label="Image Style", choices=["少女漫画風", "プレーン"], value="少女漫画風")
                     self.input_image_path = gr.Image(label="Input image", type='filepath')
                     self.bg_removed_image_path = gr.Image(label="Background Removed Image", type='filepath')
+                    self.prompt = gr.Textbox(label="Prompt", lines=3)
 
                     # 自動背景除去とプロンプト解析トリガー
                     self.input_image_path.change(
@@ -143,7 +144,6 @@ class Img2Img:
                         outputs=[self.bg_removed_image_path, self.prompt]
                     )
 
-                    self.prompt = gr.Textbox(label="Prompt", lines=3)
                     self.negative_prompt = gr.Textbox(label="Negative prompt", lines=3, value="nose, asian, realistic, lowres, error, extra digit, fewer digits, cropped, worst quality,low quality, normal quality, jpeg artifacts, blurry")
                     self.controlnet_scale = gr.Slider(minimum=0.4, maximum=1.0, value=0.55, step=0.01, label="Photo fidelity")                 
                     generate_button = gr.Button(value="Generate", variant="primary")
