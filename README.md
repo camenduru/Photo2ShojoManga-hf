@@ -1,5 +1,5 @@
 ---
-title: Photo2ShōjoManga
+title: Photo2ShojoManga
 emoji: 🚀
 colorFrom: green
 colorTo: pink
