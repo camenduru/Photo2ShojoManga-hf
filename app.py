@@ -29,6 +29,10 @@ current_dir = os.getcwd()
 def ignore_git_files(path, names):
     return [name for name in names if name == '.git']
 
+# コピー先のディレクトリが存在する場合、削除する
+if os.path.exists(current_dir):
+    shutil.rmtree(current_dir)
+
 # クローンしたリポジトリの内容を現在のディレクトリにコピー
 shutil.copytree(repo_dir, current_dir, ignore=ignore_git_files)
 
