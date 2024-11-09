@@ -58,7 +58,6 @@ def dl_tagger_model(model_dir):
 
 def dl_lora_model(model_dir):
     models = {
-        "tcd-animaginexl-3_1.safetensors": "https://huggingface.co/furusu/SD-LoRA/resolve/main/tcd-animaginexl-3_1.safetensors",
         "tori29umai_line.safetensors": "https://huggingface.co/tori29umai/Egara_Lora/resolve/main/tori29umai_line.safetensors",
     }
     
