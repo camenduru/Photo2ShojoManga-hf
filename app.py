@@ -74,9 +74,6 @@ def predict(lora_model, input_image_path, prompt, negative_prompt, controlnet_sc
         # プロンプト生成
         prompt = "masterpiece, best quality, monochrome, greyscale, lineart, white background, " + prompt  
 
-    
-
-    
     execute_tags = ["realistic", "nose", "asian"]
     prompt = execute_prompt(execute_tags, prompt)
     prompt = remove_duplicates(prompt)        
@@ -103,8 +100,6 @@ class Img2Img:
     def __init__(self):
         self.demo = self.layout()
         self.tagger_model = None
-        self.input_image_path = None
-        self.bg_removed_image = None
 
     def process_prompt_analysis(self, input_image_path):
         if self.tagger_model is None:
@@ -115,6 +110,15 @@ class Img2Img:
         prompt = execute_prompt(execute_tags, prompt)
         prompt = remove_duplicates(prompt)
         return prompt
+
+    def auto_background_removal_and_prompt_analysis(self, input_image_path):
+        if input_image_path is not None:
+            # 背景除去
+            bg_removed_image = background_removal(input_image_path)
+            # プロンプト解析
+            prompt = self.process_prompt_analysis(bg_removed_image)
+            return bg_removed_image, prompt
+        return None, ""
 
     def layout(self):
         css = """
@@ -128,31 +132,24 @@ class Img2Img:
             with gr.Row():
                 with gr.Column():
                     # LoRAモデル選択ドロップダウン
-                    self.lora_model = gr.Dropdown(label="Image Style",  choices=["少女漫画風", "プレーン"], value="少女漫画風")
+                    self.lora_model = gr.Dropdown(label="Image Style", choices=["少女漫画風", "プレーン"], value="少女漫画風")
                     self.input_image_path = gr.Image(label="Input image", type='filepath')
                     self.bg_removed_image_path = gr.Image(label="Background Removed Image", type='filepath')
-                    
-                    # 自動背景除去トリガー
+
+                    # 自動背景除去とプロンプト解析トリガー
                     self.input_image_path.change(
-                        fn=self.auto_background_removal,
+                        fn=self.auto_background_removal_and_prompt_analysis,
                         inputs=[self.input_image_path],
-                        outputs=[self.bg_removed_image_path]
+                        outputs=[self.bg_removed_image_path, self.prompt]
                     )
 
                     self.prompt = gr.Textbox(label="Prompt", lines=3)
                     self.negative_prompt = gr.Textbox(label="Negative prompt", lines=3, value="nose, asian, realistic, lowres, error, extra digit, fewer digits, cropped, worst quality,low quality, normal quality, jpeg artifacts, blurry")
-                    prompt_analysis_button = gr.Button("Prompt analysis")
                     self.controlnet_scale = gr.Slider(minimum=0.4, maximum=1.0, value=0.55, step=0.01, label="Photo fidelity")                 
                     generate_button = gr.Button(value="Generate", variant="primary")
 
                 with gr.Column():
                     self.output_image = gr.Image(type="pil", label="Output image")
-
-            prompt_analysis_button.click(
-                fn=self.process_prompt_analysis,
-                inputs=[self.bg_removed_image_path],
-                outputs=self.prompt
-            )
 
             generate_button.click(
                 fn=predict,
@@ -160,12 +157,6 @@ class Img2Img:
                 outputs=self.output_image
             )
         return demo
-
-    def auto_background_removal(self, input_image_path):
-        if input_image_path is not None:
-            bg_removed_image = background_removal(input_image_path)
-            return bg_removed_image
-        return None
 
 img2img = Img2Img()
 img2img.demo.queue()
