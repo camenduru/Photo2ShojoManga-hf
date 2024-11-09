@@ -20,3 +20,4 @@ mediapipe==0.10.14
 peft==0.11.1
 invisible-watermark
 rembg
+peft
