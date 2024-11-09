@@ -9,7 +9,6 @@ huggingface-hub
 hf-transfer
 compel
 opencv-python
-numpy
 hidiffusion==0.1.8
 spaces
 controlnet-aux==0.0.9
