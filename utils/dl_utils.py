@@ -58,7 +58,7 @@ def dl_tagger_model(model_dir):
 
 def dl_lora_model(model_dir):
     models = {
-        "tori29umai_line.safetensors": "https://huggingface.co/tori29umai/Egara_Lora/resolve/main/tori29umai_line.safetensors",
+        "syoujomannga_line.safetensors": "https://huggingface.co/tori29umai/Egara_Lora/resolve/main/syoujomannga_line.safetensors",
     }
     
     # 各モデルを確認し、必要に応じてダウンロード
