@@ -1,8 +1,7 @@
 import spaces
 import gradio as gr
 import torch
-from diffusers import ControlNetModel, StableDiffusionXLControlNetImg2ImgPipeline, AutoencoderKL
-
+from diffusers import ControlNetModel, StableDiffusionXLControlNetImg2ImgPipeline, AutoencoderKL, TCDScheduler
 from PIL import Image
 import os
 import time
@@ -14,32 +13,6 @@ from utils.tagger import modelLoad, analysis
 import pygit2
 import shutil
 import os
-
-# クローンするリポジトリのURLと保存先のパス
-repo_url = "https://github.com/jabir-zheng/TCD.git"
-repo_dir = "TCD"
-
-# Git リポジトリをクローン
-repo = pygit2.clone_repository(repo_url, repo_dir)
-
-# 現在の作業ディレクトリを取得
-current_dir = os.getcwd()
-
-# Git関連のファイル（.git）を無視するための関数
-def ignore_git_files(path, names):
-    return [name for name in names if name == '.git']
-
-# コピー先のディレクトリが存在する場合、削除する
-if os.path.exists(current_dir):
-    shutil.rmtree(current_dir)
-
-# クローンしたリポジトリの内容を現在のディレクトリにコピー
-shutil.copytree(repo_dir, current_dir, ignore=ignore_git_files)
-
-# コピーが完了したことを表示
-print(f"Repository contents (excluding .git) have been copied to {current_dir}")
-
-from scheduling_tcd import TCDScheduler
 
 path = os.getcwd()
 cn_dir = f"{path}/controlnet"
