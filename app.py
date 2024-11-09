@@ -45,8 +45,8 @@ def load_model(lora_model):
 
     # LoRAモデルの設定
     if lora_model == "少女漫画風":
-        pipe.load_lora_weights(lora_dir, weight_name="tori29umai_line.safetensors", adapter_name="tori29umai_line")
-        pipe.set_adapters(["tori29umai_line"], adapter_weights=[1.0])
+        pipe.load_lora_weights(lora_dir, weight_name="syoujomannga_line.safetensors", adapter_name="syoujomannga_line")
+        pipe.set_adapters(["syoujomannga_line"], adapter_weights=[1.0])
     elif lora_model == "プレーン":
         pass  # プレーンの場合はLoRAを読み込まない
 
