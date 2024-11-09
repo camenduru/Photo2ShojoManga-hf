@@ -10,10 +10,6 @@ from utils.image_utils import resize_image_aspect_ratio, base_generation, backgr
 from utils.prompt_utils import execute_prompt, remove_color, remove_duplicates
 from utils.tagger import modelLoad, analysis
 
-import pygit2
-import shutil
-import os
-
 path = os.getcwd()
 cn_dir = f"{path}/controlnet"
 tagger_dir = f"{path}/tagger"
